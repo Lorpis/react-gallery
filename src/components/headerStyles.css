@@ -1,0 +1,58 @@
+
+
+.flexContainer {
+	display:flex;
+	flex-direction: row;
+	align-items: center;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	max-height: 130px;
+	background: linear-gradient(135deg, purple, blue), 
+		url('./images/code.jpg') no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+ 	background-blend-mode: multiply;
+}
+
+
+.reactIcon {
+	display: flex;
+	justify-content: flex-start;
+	position: relative;
+	right: 100px;
+	margin: 15px;
+	height: 350px;
+	width: 350px;
+
+	-webkit-animation-name: rotation; /* Safari 4.0 - 8.0 */
+  	-webkit-animation-duration: 25s; /* Safari 4.0 - 8.0 */
+	animation: rotation 25s infinite linear;
+}
+@keyframes rotation {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(359deg);
+ 	}
+ }
+
+
+
+
+
+.header {
+	display:flex;
+	
+	justify-content: flex-start;
+	align-items: center;
+	font-family: 'Bree Serif', serif;
+	color: #00dbfc;
+	font-size: 2em;
+	font-weight: bolder;
+	text-shadow:10px 5px 5px black;
+	position: relative;
+	right: 190px;
+}

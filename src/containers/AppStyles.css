@@ -1,0 +1,15 @@
+@import url("https://fonts.googleapis.com/css?family=Bree+Serif&display=swap" rel="stylesheet");
+
+.flexContainer {
+	display: flex;
+	flex-direction: column;
+	user-select: none;
+}
+
+.app{
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+		user-select: none;
+}
+
+

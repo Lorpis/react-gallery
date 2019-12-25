@@ -1,0 +1,46 @@
+.fieldFlex {
+	border-width:100px;
+	display: flex;
+	flex-direction: row;
+	color: blue;
+	align-items: flex-end;
+
+	
+	border-color:  black;
+	background-color: gold;
+}
+
+.flexBox {
+	display: flex;
+	justify-content: center;
+	border-color: solid solid-black;
+	width: 200px;
+
+
+}
+
+.distanceMeter {
+	display: flex;
+	flex-direction: row;
+	color: blue;
+	align-items: flex-end;
+	width:100%;
+	height:  50px;
+}
+
+.overRated {
+	background-color: green;
+	width: 40%;
+}
+.rated{	
+	width: 40%;
+	background-color: yellow;
+}
+.underRated{
+	width: 10%;
+	background-color:  red;
+}
+.noVoltage{
+	width: 10%;
+	background-color: black;
+}

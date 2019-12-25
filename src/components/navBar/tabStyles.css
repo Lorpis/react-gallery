@@ -1,0 +1,136 @@
+.navBarContainer {
+	/*Master Style*/
+	user-select: none;
+	display: flex;
+	flex-direction: row;
+	background-color: gray;
+	justify-content: center;
+	align-items: center;
+	font-size: 1.3em;
+	height: 35px;
+}
+
+/*******************Tab Selection*****************/
+.tabContainer {
+	display: flex;
+	height: inherit;
+	flex-direction: inherit;
+	overflow: hidden;
+    white-space: nowrap;
+	align-items: center;
+	width: 100%;
+	justify-content: space-between;
+	background-color: gray;
+}
+
+.tab:not(:last-child):hover{
+	width:150%;
+	transition: width .5s ease;
+}
+
+.tab:last-child:hover {
+	margin-right: 0;
+	width:150%;
+	transition: width .5s ease;
+}
+
+.active {
+	background: white;
+	text-align: center;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: -55px;
+	width: 150%;
+	border-bottom: solid white 3px;
+	border-right: solid black;
+	border-right-width: 5px;
+	border-top-right-radius:  2em;
+	border-top-left-radius:  2em;
+	transition: width .5s ease;
+}
+
+.tab {
+	height: inherit;
+	background: gray;
+	text-align: center;
+	margin: 0px;
+	width: 100%;
+	border-right: solid black;
+	border-right-width: 5px;
+	border-top-right-radius:  2em;
+	border-bottom: solid black 2px;
+	transition: width .5s ease;
+}
+/*****************forward/back navigation***************/
+/*****************inharited from tab********************/
+.navButton{	
+	flex-shrink: 0;
+	display: flex;
+	height: inherit;
+	flex-direction: inherit;
+	white-space: pre;  
+}
+/****right side nav*******/
+ .navBarContainer .navButton:last-child .active{
+	padding-left: 1em;
+	padding-right: 1em;
+	border-top-right-radius:  0em;
+	border-right: none;
+
+}
+/****left side nav*******/
+ .navBarContainer .navButton:first-child .active{
+	padding-left: 2.5em;
+	padding-right:1em;
+	border-top-left-radius:  0em;
+	border-left: none;
+}
+/****left side selection out****/
+.navBarContainer .navButton:first-child .tab{
+	white-space: nowrap;
+	overflow: hidden;
+	animation:  1s ease-out 0s 1 slideOutFromRight;
+	animation-fill-mode: forwards;
+}
+/****left side selection in****/
+.navBarContainer .navButton:first-child .active{
+	white-space: nowrap;
+	overflow: hidden;
+	animation:  .5s ease-out 0s 1 slideInFromRight;
+	animation-fill-mode: forwards;
+}
+
+
+/******************animations****************/
+@keyframes slideOutFromRight{
+    0% {
+    
+    	overflow-y: hidden;
+    }
+    100% {
+    	transform: scaleX(-100%);
+    	width: 0em;
+		border-width: 0em 0em, 0px, 0em;
+    	padding: 0em 0em 0em 0em;
+    	margin: 0em 0em 0em 0em;
+
+    }
+}
+@keyframes slideInFromRight{
+	0%{ 
+	   transform: scaleX(0%);
+		width:0em;
+    	border-width: 0em 0em, 2px, 0em;
+    	padding-right: 0em 0em, 0em, 0em;
+    	margin-left: 0px;
+    	margin-right: 0px;
+
+	}
+	100%{
+		transform: scaleX(100%);
+		
+	}
+}
+
+
+
