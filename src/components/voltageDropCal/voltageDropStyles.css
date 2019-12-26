@@ -27,20 +27,54 @@
 	width:100%;
 	height:  50px;
 }
-
-.overRated {
+.vdRating {
+	display: flex;
+	align-content: center;
+	justify-content: flex-end;
+}
+/*
+.vdRating:nth-child(1) {
 	background-color: green;
-	width: 40%;
+}
+.vdRating:nth-child(2) {
+	background-color: yellow;
+}
+.vdRating:nth-child(3) {
+	background-color: red;
+}
+.vdRating:nth-child(4) {
+	background-color: black;
+}*/
+.overRated {
+	display: flex;
+	white-space: nowrap;
+  	overflow: hidden;
+	align-content: center;
+	justify-content: flex-end;
+	background-color: green;
 }
 .rated{	
-	width: 40%;
+	display: flex;
+	white-space: nowrap;
+  	overflow: hidden;
+	align-content: center;
+	justify-content: flex-end;
 	background-color: yellow;
 }
 .underRated{
-	width: 10%;
+	display: flex;
+	white-space: nowrap;
+  	overflow: hidden;
+	align-content: center;
+	justify-content: flex-end;
 	background-color:  red;
 }
 .noVoltage{
-	width: 10%;
+	
+	display: flex;
+	white-space: nowrap;
+  	overflow: hidden;
+	align-content: center;
+	justify-content: center;
 	background-color: black;
 }
