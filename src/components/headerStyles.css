@@ -3,10 +3,13 @@
 .flexContainer {
 	display:flex;
 	flex-direction: row;
+	white-space: nowrap;
+  	overflow: hidden;
+	width: 100%;
 	align-items: center;
 	overflow-y: hidden;
 	overflow-x: hidden;
-	max-height: 130px;
+	max-height: 8em;
 	background: linear-gradient(135deg, purple, blue), 
 		url('./images/code.jpg') no-repeat center center fixed;
 	-webkit-background-size: cover;
@@ -21,10 +24,10 @@
 	display: flex;
 	justify-content: flex-start;
 	position: relative;
-	right: 100px;
-	margin: 15px;
-	height: 350px;
-	width: 350px;
+	right: 6em;
+	margin: 1em;
+	height: 15em;
+	width: 15em;
 
 	-webkit-animation-name: rotation; /* Safari 4.0 - 8.0 */
   	-webkit-animation-duration: 25s; /* Safari 4.0 - 8.0 */
@@ -45,12 +48,11 @@
 
 .header {
 	display:flex;
-	
-	justify-content: flex-start;
+	justify-content: center;
 	align-items: center;
 	font-family: 'Bree Serif', serif;
 	color: #00dbfc;
-	font-size: 2em;
+	font-size: 1.2em;
 	font-weight: bolder;
 	text-shadow:10px 5px 5px black;
 	position: relative;

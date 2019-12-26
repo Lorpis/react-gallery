@@ -1,11 +1,12 @@
+
+
+
 .fieldFlex {
 	border-width:100px;
 	display: flex;
 	flex-direction: row;
-	color: blue;
-	align-items: flex-end;
-
-	
+	color: black;
+	align-items: center;
 	border-color:  black;
 	background-color: gold;
 }
@@ -14,7 +15,7 @@
 	display: flex;
 	justify-content: center;
 	border-color: solid solid-black;
-	width: 200px;
+
 
 
 }
@@ -32,19 +33,7 @@
 	align-content: center;
 	justify-content: flex-end;
 }
-/*
-.vdRating:nth-child(1) {
-	background-color: green;
-}
-.vdRating:nth-child(2) {
-	background-color: yellow;
-}
-.vdRating:nth-child(3) {
-	background-color: red;
-}
-.vdRating:nth-child(4) {
-	background-color: black;
-}*/
+
 .overRated {
 	display: flex;
 	white-space: nowrap;

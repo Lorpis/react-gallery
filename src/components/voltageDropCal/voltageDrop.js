@@ -205,13 +205,13 @@ class Select extends React.Component{
 		const items = this.props.items
 
 		return(
-			<div>
+			<fieldset>
 			<MenuList  
 				list = {items}
 				onChange = {this.handleChange}
 				onClick = {this.handleClick}
 			/>{scale}
-			</div>
+			</fieldset>
 			);
 	}
 }
