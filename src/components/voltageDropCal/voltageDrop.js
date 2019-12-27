@@ -87,7 +87,9 @@ const barList = (props) => {
 			usedUp = totalLength
 			percent = makePercent(sectionLength, totalLength)
 			barlist[i] = {className:classNames[i], percent:percent, length:length}
-		} else if (usedUp  >=  totalLength  ){break;}
+		} else if (usedUp  >=  totalLength  ){
+			percent = makePercent(sectionLength, totalLength)
+			barlist[i] = {className:classNames[i], percent:'0%', length:length}}
 		
 	}
 	return barlist
@@ -157,7 +159,7 @@ class Result extends React.Component{
 		var barlist = barList(this.props)
 		return(
 			<div>
-				<legend>this.props.legendTitle}</legend>
+				<legend>{this.props.legendTitle}</legend>
 				<LimitBarEl
 					barList = {barlist}
 					lengthScale = {lengthScale}/>
@@ -284,7 +286,8 @@ const VoltageDropCalc = (props) => {
 	return <p> The voltage drop  is {vd}Volts, making it a {pvd}persent voltage drop</p>;
 }
 
-const toLengthFromPVD = (k, multiple, amps, volts, ft, cm, pvd, disScale)  => {
+const toLengthFromPVD = (k, phase, amps, volts, ft, cm, pvd, disScale)  => {
+	let multiple = phase === 1 ? 2: Math.sqrt(3) 
 	let vd = (pvd*volts)/100
 	let length =  (vd*cm)/(k*multiple *amps)
 	length = Number.isNaN(length) ? length = 0: length;
@@ -292,15 +295,23 @@ const toLengthFromPVD = (k, multiple, amps, volts, ft, cm, pvd, disScale)  => {
 
 	return  Math.round(length*100)/100;
 }
-
+const scanStrFor = (item, inString) => {
+	//return number of ocurrances
+	var counter = 0;
+	for (var i = 0;  i < inString.length; i++){
+		if (inString.charAt(i) === item) {counter++}
+	}
+	return counter
+}
 
 const isNumberKey = (number) => {
-	let str = number;
+	let str =number;
 	if ( str.charAt(str.length -1) === '.'  &&  !(str.indexOf('.') < str.length-1)) { return str} 
-	else {
+	else  if ( str.charAt(str.length -1) === '0' &&  scanStrFor('.' , str) === 1) {return str}
+	else {	
 		const input = parseFloat(number);
 		if(Number.isNaN(input)){return ' '}
-		else {return input}	
+		else {return Math.round(input*1000)/1000}	
 		}
 }
 
@@ -317,7 +328,7 @@ const tryConvert = (measure, convert, volts) => {
 
 
 
-//starting '0's
+
 
 //distance convertions
 const toMeters = (feet) => { return feet / 3.281};
@@ -325,11 +336,43 @@ const toFeet = (meters)=> { return meters * 3.281};
 
 //power/amps  convertions
 const toAmps = (watts, volts) => {return watts/volts}
-const toWatts = (amps, volts, phase) => {return amps*volts}
+const toWatts = (amps, volts) => {return amps*volts}
+
+
+
+
+const getIndexNum = (item, list) => {
+	var i ;
+	for (i=0; i < list.length; i++) {if (item < list[i]) { break}}
+	return i
+}
+
+
+
+const tryCalculate  = (convert, phase, k, amps, length, volts, cmils, vd) => {
+	var output = convert(phase,k, amps, length, volts, cmils, vd);
+
+	output = isNaN(output) ? 0:output;
+	return output;
+		}
+
+//result either Vdrop or wiresize cmil or fd scale
+const vdToCmils = (phase, k, amps, length, vd) => {
+	let multiple = phase === 3 ? Math.sqrt(3):2;
+	let value = Math.round((multiple*k*amps*length)/vd);
+	return  value 
+
+}
+
+const cmilsToVd = (phase, k, amps, length, cmils) => {
+	let multiple = phase === 3 ? Math.sqrt(3):2;
+	return Math.round((multiple*k*amps*length *1000)/cmils)/1000
+}
+
 	
-
-
-
+//const vdToCmils = (phase, k, amps, length, vd)
+//const cmilsToVd = (phase, k, amps, length, cmils)
+//const getIndexNum = (item, list) => {
 
  
 
@@ -369,10 +412,7 @@ class voltageDropInputs extends React.Component{
 		this.state = {
 			temperature:20,
 			k:10.4,
-			multiple:2,
 
-			
-			lm: ' ', //length meters
 			metal:'copper', //Metal
 
 
@@ -401,16 +441,16 @@ class voltageDropInputs extends React.Component{
 			milsState: kcmils,
 			wireIndex:0,  //Position in paralel wire size lists
 			cmils:0,
-
+			calceMag:0,
 			calcScale:''
 		}
 	}
 
 	componentDidMount(){
-		console.log('mounted')
+
 	}
 	componentWillUnmount() {
-		console.log('unmount');
+
 	 }
 
 	/*an attempt to work with one change handler
@@ -418,8 +458,7 @@ class voltageDropInputs extends React.Component{
 		const value = voltage[0];
 		const unit = voltage[1];
 		this.setState({unit:value});
-		console.log(value)
-		console.log(unit)
+
 
 	}*/
 
@@ -437,34 +476,48 @@ class voltageDropInputs extends React.Component{
 	}
 	handleVoltageClick(event){}
 
-
+//const vdToCmils = (phase, k, amps, length, vd)
+//const cmilsToVd = (phase, k, amps, length, cmils)
+//const getIndexNum = (item, list) => {
 	handleVDChange(event){
-		let vd = isNumberKey(event)
+		let vd = isNumberKey(event);
+
+
+		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
+		//let wireIndex = getIndexNum(cmils*1000, kValues);
+
+
 		this.setState({calcScale: 'vd', vdScale:'vd', vdMag:vd, vd});
+		
 	}
 	
 	handlePVDChange(event){
 		let vdMag = isNumberKey(event);
 		let vd = tryConvert(vdMag, toVDfromPVD, this.state.voltage)
+		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
+		//let wireIndex = getIndexNum(cmils*1000, kValues);
+
+
 		this.setState({calcScale:'vd', vdScale: 'pvd', vdMag, vd})
+
+		
 	};
 
 
 	//installation
 			//power
-	handleAmpChange(event){/////////////////////////////////////////////////////////////////
+	handleAmpChange(event){
 		let amps = isNumberKey(event);
 		this.setState({powScale:'amps', powMag:amps,  amps});
 	}
 	handleWattChange(event){
 		let powMag = isNumberKey(event);
-		let amps = tryConvert(powMag , toAmps, this.state.voltage*Math.sqrt(this.state.phase) ); 
+		let amps = tryConvert(powMag , toAmps, this.state.voltage ); 
 		this.setState({powScale: 'p', powMag, amps })
 	}
 	handlePhaseChange(event){
 		let phase = phases[event]
-		let mutiple = phase === 3 ? Math.sqrt(3):2;
-		this.setState({phase, mutiple})
+		this.setState({phase})
 	}	
 	handlePhaseClick(event){}
 
@@ -472,12 +525,28 @@ class voltageDropInputs extends React.Component{
 			//distance
 	handleFootChange(event){
 		let length = isNumberKey(event);
+/*
+		if (this.state.calcScale === 'vd'){
+			let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, length, this.state.vd);
+			let wireIndex = getIndexNum(cmils*1000, kValues);
+			this.setState({wireIndex})}
+*/
 		this.setState({disScale:'ft',distance:length, length});
+
+;
 	};
 	handleMeterChanged(event){
 		let distance = isNumberKey(event);
 		let length = tryConvert(distance, toFeet);
-		this.setState({disScale:'m',distance, length });
+/*
+		if (this.state.calcScale === 'vd'){
+			let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, length, this.state.vd);
+			let wireIndex = getIndexNum(cmils*1000, kValues);
+			this.setState({wireIndex})}
+*/
+		this.setState({disScale:'m',distance, length});
+
+;
 	};
 
 	//Wire Properties
@@ -535,7 +604,9 @@ class voltageDropInputs extends React.Component{
 
 
 	render(){
-		console.log(this.state.calcScale)
+		console.log(this.state.cmils)
+
+
     	//power field
     	const  powScale = this.state.powScale;
     	const powMag = this.state.powMag;
@@ -551,20 +622,38 @@ class voltageDropInputs extends React.Component{
    		const meters = disScale === 'ft' ? tryConvert(distance, toMeters ): distance;
     	const feet = disScale === 'm' ? tryConvert(distance, toFeet) : distance;
 
+
+    	//const vdToCmils = (phase, k, amps, length, vd)
+   		//const cmilsToVd = (phase, k, amps, length, cmils)
+
+   			/*AWGState:gauges, // alt states input /output lists
+			milsState: kcmils,
+			wireIndex:0,  //Position in paralel wire size lists
+			cmils:0,
+			calcScale:''*/
+		const AWGState = this.state.AWGState
+		const milsState = this.state.milsState
+		//const AWGState = this.state.calcScale === 'vd' ? gauges[this.state.wireIndex]:this.state.AWGState
+		//const milsState = this.state.calcScale=== 'vd' ? kValues[this.state.wireIndex]:this.state.milsState
+
+
+
     	//voltage drop feilds
-    	const vdScale = this.state.vdScale;
-    	const vdMag = this.state.vdMag;
+    	const vdScale =  this.state.vdScale //this.state.vdScale;
+    	const vdMag =  this.state.vdMag  //this.state.calcScale === 'cmils' ? this.state.vdMag;
+
+    
     	const vd = vdScale === 'pvd' ? tryConvert(vdMag,toVDfromPVD, volts): vdMag;
     	const pvd = vdScale === 'vd' ? tryConvert(vdMag, toPVD, volts): vdMag;
+
+
 
     	//wire range bars
 
     	const k = this.state.k;
-    	const multiple = this.state.multiple;
     	const amps = this.state.amps;
     	const ft = this.state.length;
     	const totalLength = disScale == 'm' ? tryConvert(ft, toMeters):ft;
-    	//const statePack{k:k, multiple:multiple, amps:amps, volts:volts,  cmils:cm, length:ft}
     	const biggerCM = kcmils[this.state.wireIndex + 1]*1000;
     	const smallerCM = kcmils[this.state.wireIndex - 1]*1000;
 		const cm = this.state.cmils
@@ -576,8 +665,7 @@ class voltageDropInputs extends React.Component{
 
 
 		//wire size select
-		const AWGState =this.state.AWGState;
-		const milsState = this.state.milsState;
+
 
 
 
@@ -692,46 +780,30 @@ class voltageDropInputs extends React.Component{
 					</div>
 			</fieldset>
 
-
-		
-
-
-
-
-
-				<VoltageDropCalc
-					metal = {this.state.metal}
-					volts = {this.state.voltage}
-					amps= {this.state.amps}
-					length = {this.state.length}
-					phase = {this.state.phase}
-					kcmils = {this.state.kcmils}
-				/>
-
 				<Result
-					legendTitle = 'One wire size smaller'
+					legendTitle = 'One wire size larger'
 					lengthScale = {this.state.disScale}
 					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, biggerCM, 1,disScale)}
-					ratedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, biggerCM, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, biggerCM, 100,disScale)}
+					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, biggerCM, 3,disScale)}
+					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, biggerCM, 5,disScale)}
+					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, biggerCM, 100,disScale)}
 					/> 
 
 					<Result
 					legendTitle = 'Selected wire size'
 					lengthScale =  {this.state.disScale}
 					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, cm, 1,disScale)}
-					ratedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, cm, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, cm, 100,disScale)}
+					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cm, 3,disScale)}
+					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cm, 5,disScale)}
+					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cm, 100,disScale)}
 					/>
 				<Result
-					legendTitle = 'One wire size larger'
+					legendTitle = 'One wire size smalerl'
 					lengthScale =  {this.state.disScale}
 					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, smallerCM, 1,disScale)}
-					ratedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, smallerCM, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, multiple, amps, volts, ft, smallerCM, 100,disScale)}
+					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, smallerCM, 3,disScale)}
+					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, smallerCM, 5,disScale)}
+					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, smallerCM, 100,disScale)}
 					/> 
 
 
