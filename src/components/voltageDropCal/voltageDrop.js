@@ -267,8 +267,8 @@ const kCalc = (metal, temp) => {
 	return   Math.round(output * 1000) / 1000
 }
 
-const toPVD = (volts, vd) => {return vd/volts}
-const toVDfromPVD =(volts, pvd) => {return volts*(pvd/100)}
+const toPVDfromVD = (vd, volts) => {return (vd*100)/volts}
+const toVDfromPVD =(pvd, volts) => {return (pvd/100)*volts}
 
 const toKcmils = (k,  length, amps, multiple) =>{}
 const toLength = (k, kcmils, amps, multiple) => {}
@@ -436,9 +436,10 @@ class voltageDropInputs extends React.Component{
 
 
 			//wire sizes
-			wireScale:' ', //AWG or mils
-			AWGState:gauges, // alt states input /output lists
-			milsState: kcmils,
+			wireScale:' ', //AWG or CM
+			//AWGState:gauges, // alt states input /output lists
+			//milsState: kcmils,
+			wireMag:0,
 			wireIndex:0,  //Position in paralel wire size lists
 			cmils:0,
 			calceMag:0,
@@ -476,32 +477,7 @@ class voltageDropInputs extends React.Component{
 	}
 	handleVoltageClick(event){}
 
-//const vdToCmils = (phase, k, amps, length, vd)
-//const cmilsToVd = (phase, k, amps, length, cmils)
-//const getIndexNum = (item, list) => {
-	handleVDChange(event){
-		let vd = isNumberKey(event);
 
-
-		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
-		//let wireIndex = getIndexNum(cmils*1000, kValues);
-
-
-		this.setState({calcScale: 'vd', vdScale:'vd', vdMag:vd, vd});
-		
-	}
-	
-	handlePVDChange(event){
-		let vdMag = isNumberKey(event);
-		let vd = tryConvert(vdMag, toVDfromPVD, this.state.voltage)
-		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
-		//let wireIndex = getIndexNum(cmils*1000, kValues);
-
-
-		this.setState({calcScale:'vd', vdScale: 'pvd', vdMag, vd})
-
-		
-	};
 
 
 	//installation
@@ -565,31 +541,52 @@ class voltageDropInputs extends React.Component{
 
 	//***selects***
 	 handleWireClick(event){	
-	 	if (this.state.wireScale !== event){
-			this.setState({wireScale:event});
-			} 
+/*
 		let wireIndex = this.state.wireIndex
-		let milsState =  this.state.wireScale ==='AWG' ? [kcmils[wireIndex]]: kcmils;
-		let AWGState = this.state.wireScale === 'kcmils' ? [gauges[wireIndex]]: gauges
-		this.setState({calcScale:'mils', AWGState, milsState});
-
-		
-
+		let milsState =  this.state.wireScale ==='AWG' ? this.state.wireMag: kcmils;
+		let AWGState = this.state.wireScale === 'CM' ? this.state.wireMag: gauges
+		this.setState({calcScale:'CM', AWGState, milsState});*/
 	}
 	
 
 
 	handleAWGChange(event){
 		let cmils= parseFloat(kcmils[event])*1000;
-		let wireIndex = parseInt(event)
-		this.setState({cmils, wireIndex});
+		let wireIndex = parseInt(event);
+		let wireScale = 'AWG';
+		let wireMag = [kcmils[event], 'CM Select']
+		this.setState({calcScale:'CM', wireMag, wireIndex, wireScale, cmils});
 	}
 
 	handlekcmilsChange(event){
 		let cmils= parseFloat(kcmils[event])*1000;
 		let wireIndex = parseInt(event)
-		this.setState({cmils, wireIndex});
+		let wireScale = 'CM';
+		let wireMag = gauges.length > wireIndex ? [gauges[event], 'AWG Select']: ['no AWG', 'AWG Select']
+		this.setState({calcScale:'CM', wireMag, wireIndex, wireScale, cmils});
 	}
+	//const vdToCmils = (phase, k, amps, length, vd)
+//const cmilsToVd = (phase, k, amps, length, cmils)
+//const getIndexNum = (item, list) => {
+	handleVDChange(event){
+		var vdMag = isNumberKey(event);
+		let vd = vdMag > this.state.voltage ? this.state.voltage:vdMag ;
+		vdMag = vd;
+
+		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
+		//let wireIndex = getIndexNum(cmils*1000, kValues);
+		this.setState({calcScale: 'vd', vdScale:'vd', vdMag, vd});	
+	}
+	
+	handlePVDChange(event){
+		var vdMag = isNumberKey(event) ;
+		vdMag = vdMag > 100?100:vdMag;
+		let  vd = tryConvert(vdMag, toVDfromPVD, this.state.voltage)
+
+		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
+		//let wireIndex = getIndexNum(cmils*1000, kValues);
+		this.setState({calcScale:'vd', vdScale: 'pvd', vdMag, vd})	
+	};
 
 
 
@@ -631,11 +628,12 @@ class voltageDropInputs extends React.Component{
 			wireIndex:0,  //Position in paralel wire size lists
 			cmils:0,
 			calcScale:''*/
-		const AWGState = this.state.AWGState
-		const milsState = this.state.milsState
+
 		//const AWGState = this.state.calcScale === 'vd' ? gauges[this.state.wireIndex]:this.state.AWGState
 		//const milsState = this.state.calcScale=== 'vd' ? kValues[this.state.wireIndex]:this.state.milsState
 
+		let milsState =  this.state.wireScale ==='AWG' ? this.state.wireMag: kcmils;
+		let AWGState = this.state.wireScale === 'CM' ? this.state.wireMag: gauges;
 
 
     	//voltage drop feilds
@@ -644,7 +642,7 @@ class voltageDropInputs extends React.Component{
 
     
     	const vd = vdScale === 'pvd' ? tryConvert(vdMag,toVDfromPVD, volts): vdMag;
-    	const pvd = vdScale === 'vd' ? tryConvert(vdMag, toPVD, volts): vdMag;
+    	const pvd = vdScale === 'vd' ? tryConvert(vdMag, toPVDfromVD, volts): vdMag;
 
 
 
