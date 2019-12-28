@@ -292,9 +292,10 @@ const toLengthFromPVD = (k, phase, amps, volts, ft, cm, pvd, disScale)  => {
 	let length =  (vd*cm)/(k*multiple *amps)
 	length = Number.isNaN(length) ? length = 0: length;
 	length = disScale === 'm' ? tryConvert(length, toMeters): length;
-
 	return  Math.round(length*100)/100;
 }
+
+
 const scanStrFor = (item, inString) => {
 	//return number of ocurrances
 	var counter = 0;
@@ -341,10 +342,10 @@ const toWatts = (amps, volts) => {return amps*volts}
 
 
 
-const getIndexNum = (item, list) => {
-	var i ;
-	for (i=0; i < list.length; i++) {if (item < list[i]) { break}}
-	return i
+const getIndexNum = (item, list) => {///////////////////////////////////////////////////////////////////////
+	for (var i=0; i < list.length; i++) {	
+		if (item < list[i]) {return i; break}
+	}
 }
 
 
@@ -352,7 +353,6 @@ const getIndexNum = (item, list) => {
 const tryCalculate  = (convert, phase, k, amps, length, volts, cmils, vd) => {
 	var output = convert(phase,k, amps, length, volts, cmils, vd);
 
-	output = isNaN(output) ? 0:output;
 	return output;
 		}
 
@@ -410,40 +410,35 @@ class voltageDropInputs extends React.Component{
 
 
 		this.state = {
+			//wire poperties
 			temperature:20,
 			k:10.4,
+			metal:'copper', 
 
-			metal:'copper', //Metal
-
-
-			//votage drop representation
+			//votage drop 
 			vdScale:'',
-			vd:0, //votage drop
-			vdMag:0,
+			vd:0, 
+			vdMag:0,//selected value
 
 			//power
-			voltage: 120, //volts
-			amps:0, //current
-			powMag: 0,
-			powScale: '',
+			voltage: 120, 
+			amps:0, 
+			powMag: 0,//selected value
+			powScale: '',//amps or watts
 			phase:1,
 
-
 			//distance 
-			distance: 0,
-			disScale: ' ',
-			length: 0, //length ft for calc
+			distance: 0,//selected value
+			disScale: ' ',//length ft for calc
+			length: 0, 
 
 
 			//wire sizes
 			wireScale:' ', //AWG or CM
-			//AWGState:gauges, // alt states input /output lists
-			//milsState: kcmils,
 			wireMag:0,
 			wireIndex:0,  //Position in paralel wire size lists
 			cmils:0,
-			calceMag:0,
-			calcScale:''
+			calcScale:''//VD or CM
 		}
 	}
 
@@ -454,18 +449,7 @@ class voltageDropInputs extends React.Component{
 
 	 }
 
-	/*an attempt to work with one change handler
-	handleChange(voltage){
-		const value = voltage[0];
-		const unit = voltage[1];
-		this.setState({unit:value});
-
-
-	}*/
-
 	//***fields***
-
-
 	handleLChange(event){
 		this.setState({length:event});
 	}
@@ -514,12 +498,6 @@ class voltageDropInputs extends React.Component{
 	handleMeterChanged(event){
 		let distance = isNumberKey(event);
 		let length = tryConvert(distance, toFeet);
-/*
-		if (this.state.calcScale === 'vd'){
-			let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, length, this.state.vd);
-			let wireIndex = getIndexNum(cmils*1000, kValues);
-			this.setState({wireIndex})}
-*/
 		this.setState({disScale:'m',distance, length});
 
 ;
@@ -541,11 +519,6 @@ class voltageDropInputs extends React.Component{
 
 	//***selects***
 	 handleWireClick(event){	
-/*
-		let wireIndex = this.state.wireIndex
-		let milsState =  this.state.wireScale ==='AWG' ? this.state.wireMag: kcmils;
-		let AWGState = this.state.wireScale === 'CM' ? this.state.wireMag: gauges
-		this.setState({calcScale:'CM', AWGState, milsState});*/
 	}
 	
 
@@ -554,125 +527,85 @@ class voltageDropInputs extends React.Component{
 		let cmils= parseFloat(kcmils[event])*1000;
 		let wireIndex = parseInt(event);
 		let wireScale = 'AWG';
-		let wireMag = [kcmils[event], 'CM Select']
-		this.setState({calcScale:'CM', wireMag, wireIndex, wireScale, cmils});
+		this.setState({calcScale:'CM', wireIndex, wireScale, cmils});
 	}
 
 	handlekcmilsChange(event){
 		let cmils= parseFloat(kcmils[event])*1000;
 		let wireIndex = parseInt(event)
 		let wireScale = 'CM';
-		let wireMag = gauges.length > wireIndex ? [gauges[event], 'AWG Select']: ['no AWG', 'AWG Select']
-		this.setState({calcScale:'CM', wireMag, wireIndex, wireScale, cmils});
+		this.setState({calcScale:'CM', wireIndex, wireScale, cmils});
 	}
-	//const vdToCmils = (phase, k, amps, length, vd)
-//const cmilsToVd = (phase, k, amps, length, cmils)
-//const getIndexNum = (item, list) => {
+
 	handleVDChange(event){
 		var vdMag = isNumberKey(event);
 		let vd = vdMag > this.state.voltage ? this.state.voltage:vdMag ;
-		vdMag = vd;
-
-		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
-		//let wireIndex = getIndexNum(cmils*1000, kValues);
-		this.setState({calcScale: 'vd', vdScale:'vd', vdMag, vd});	
+		this.setState({calcScale: 'VD', vdScale:'vd', vdMag:vd, vd});	
 	}
 	
 	handlePVDChange(event){
 		var vdMag = isNumberKey(event) ;
 		vdMag = vdMag > 100?100:vdMag;
 		let  vd = tryConvert(vdMag, toVDfromPVD, this.state.voltage)
-
-		//let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, this.state.length, vd);
-		//let wireIndex = getIndexNum(cmils*1000, kValues);
-		this.setState({calcScale:'vd', vdScale: 'pvd', vdMag, vd})	
+		this.setState({calcScale:'VD', vdScale: 'pvd', vdMag, vd})	
 	};
-
-
-
-
-
-
 
 	handleMetalClick(){}
 
-
-
-
-
 	render(){
-		console.log(this.state.cmils)
-
+		//calc variables
+		const phase = this.state.phase;
+		const k = this.state.k;
+		const amps = this.state.amps;
+		const length = this.state.length;
+		const volts = this.state.voltage;
+		const watts = this.state.watts;
 
     	//power field
     	const  powScale = this.state.powScale;
     	const powMag = this.state.powMag;
-    	const volts = this.state.voltage;
-    	const phase = this.state.phase;
-     	const ampInput = powScale === 'p' ? tryConvert(powMag , toAmps, volts*Math.sqrt(phase) ): powMag;
-    	const wattInput = powScale === 'amps' ? tryConvert(powMag , toWatts, volts*Math.sqrt(phase)) : powMag;  	
-
+     	const ampInput = powScale === 'p' ? 
+     		tryConvert(powMag , toAmps, volts*Math.sqrt(phase) ): powMag;
+    	const wattInput = powScale === 'amps' ? 
+    		tryConvert(powMag , toWatts, volts*Math.sqrt(phase)) : powMag;  	
 
 		//distance field
-		const  disScale = this.state.disScale;
+		const disScale = this.state.disScale;
 		const distance = this.state.distance;
    		const meters = disScale === 'ft' ? tryConvert(distance, toMeters ): distance;
     	const feet = disScale === 'm' ? tryConvert(distance, toFeet) : distance;
 
+    	//toggle between voltage drop and wire size and toggle each within
+		const vdScale =  this.state.vdScale;
+		const wireScale = this.state.wireScale;
+		const calcScale = this.state.calcScale;
+	    const cmils = calcScale === 'VD'? vdToCmils(phase, k, amps, length, this.state.vd):this.state.cmils;
+		const wireIndex = calcScale ==='VD' ? getIndexNum(cmils/1000, kcmils):this.state.wireIndex;
 
-    	//const vdToCmils = (phase, k, amps, length, vd)
-   		//const cmilsToVd = (phase, k, amps, length, cmils)
+		//converts voltage drop from a constant to a variable of wire size
+		const wireVdMag = tryCalculate(cmilsToVd, phase, k, amps, length, cmils);
+		const vdMag = calcScale === "CM" ? 
+			(vdScale === 'vd' ? wireVdMag: tryConvert(wireVdMag,toPVDfromVD, volts)):
+			this.state.vdMag;
 
-   			/*AWGState:gauges, // alt states input /output lists
-			milsState: kcmils,
-			wireIndex:0,  //Position in paralel wire size lists
-			cmils:0,
-			calcScale:''*/
+		//converts  wire size from a constant to a variable of voltage drop
+		const conKcmils = [kcmils[wireIndex], 'CM Select'];
+		const conAWG = gauges.length > wireIndex ? [gauges[wireIndex], 'AWG Select']: ['no AWG', 'AWG Select'];
 
-		//const AWGState = this.state.calcScale === 'vd' ? gauges[this.state.wireIndex]:this.state.AWGState
-		//const milsState = this.state.calcScale=== 'vd' ? kValues[this.state.wireIndex]:this.state.milsState
-
-		let milsState =  this.state.wireScale ==='AWG' ? this.state.wireMag: kcmils;
-		let AWGState = this.state.wireScale === 'CM' ? this.state.wireMag: gauges;
-
-
-    	//voltage drop feilds
-    	const vdScale =  this.state.vdScale //this.state.vdScale;
-    	const vdMag =  this.state.vdMag  //this.state.calcScale === 'cmils' ? this.state.vdMag;
-
-    
+		//toggles master/slave for convertion and calcs based on state
     	const vd = vdScale === 'pvd' ? tryConvert(vdMag,toVDfromPVD, volts): vdMag;
     	const pvd = vdScale === 'vd' ? tryConvert(vdMag, toPVDfromVD, volts): vdMag;
 
-
+    	//toggles master/slave for convertion and calcs based on state
+		const milsState =  wireScale  ===  'AWG' || calcScale === 'VD' ? conKcmils: kcmils;
+		const AWGState = wireScale  === 'CM'|| calcScale === 'VD'  ? conAWG: gauges;
 
     	//wire range bars
-
-    	const k = this.state.k;
-    	const amps = this.state.amps;
     	const ft = this.state.length;
     	const totalLength = disScale == 'm' ? tryConvert(ft, toMeters):ft;
-    	const biggerCM = kcmils[this.state.wireIndex + 1]*1000;
-    	const smallerCM = kcmils[this.state.wireIndex - 1]*1000;
-		const cm = this.state.cmils
-
-
-    	 // const celsius = scale === 'f' ? tryConvert(temperature, toCelsius) : temperature;
-   // const fahrenheit = scale === 'c' ? tryConvert(temperature, toFahrenheit) : temperature;
-		//formula variables
-
-
-		//wire size select
-
-
-
-
-	
-	
-		//var stateGauge = this.state.wireScale === 'kcmils' ? [gauges[wireIndex]]: gauges
-		//var stateKcmil = this.state.wireScale ==='AWG' ? [kcmils[wireIndex]]: kcmils
-
-											
+    	var biggerCM = kcmils[wireIndex + 1]*1000;
+    	var smallerCM = kcmils[wireIndex - 1]*1000;
+												
 
 		return(
 			<div> 
@@ -791,9 +724,9 @@ class voltageDropInputs extends React.Component{
 					legendTitle = 'Selected wire size'
 					lengthScale =  {this.state.disScale}
 					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cm, 3,disScale)}
-					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cm, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cm, 100,disScale)}
+					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cmils,3,disScale)}
+					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 5,disScale)}
+					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 100,disScale)}
 					/>
 				<Result
 					legendTitle = 'One wire size smalerl'
