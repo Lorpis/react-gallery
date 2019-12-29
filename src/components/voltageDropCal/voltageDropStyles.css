@@ -15,6 +15,7 @@
 	display: flex;
 	justify-content: center;
 	border-color: solid solid-black;
+	align-items: center;
 
 
 
@@ -65,7 +66,6 @@
 	transition: width 1s;
 }
 .noVoltage{
-	
 	display: flex;
 	white-space: nowrap;
   	overflow: hidden;

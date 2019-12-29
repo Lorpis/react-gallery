@@ -1,4 +1,6 @@
-import React from 'react';
+import React,   { useLayoutEffect, useState } from 'react';
+import  NumInput from './NumInput';
+import IndexSelect from './IndexSelect';
 import  './voltageDropStyles.css';
 
 
@@ -6,21 +8,26 @@ import  './voltageDropStyles.css';
 
 
 /********************Voltage Drop constants**********************/
-/*input variable*/
+/*variable for html display*/
 const unitType = {
-	voltage:'Voltage',
-	amps:'Current',
-	ft:'Length in ft',
-	m:'Length in Meters',
-	kcmils:'Area',
+	phase:'∅',
+	volts:'v',
+	amps:'a',
+	feet:'ft',
+	meters:'m',
+	kcmils:'kcm',
 	metal:'Metal',
-	pvd:'% Voltage Drop',
-	vd:'Voltage Drop',
-	p:'Watts',
-	temp:'Cecius',
+	pvd:<div> % v<sub>↓</sub></div>,
+	vd:<div> v<sub>↓</sub></div>,
+	watts:'w',
+	temp:'°c',
+	gauge:'awg',
+
 
 
 };
+
+const decplace  = 1000;//defaut persisi
 
 //pulldown list items
 const voltages = [120, 208, 240, 277, 347, 416, 480, 600];
@@ -45,7 +52,7 @@ const kValues = {copper:{k:10.4, tempCo:0.0039},
 
 
 //CEC given standard wire sizes for pulldown
-const gauges = ['Select ','18','16','14',
+const gauges = ['Select','18','16','14',
 						   '12','10','8',
 						   '6','4','3',
 						   '2','1','0',
@@ -63,14 +70,35 @@ const kcmils = ['Select','1.624','2.583','4.107',
 
 
 /**************voltage drop graphical display*********************************/
+
+
+function useWindowSize() {
+	const [size, setSize] = useState([0, 0]);
+	useLayoutEffect(() => {
+		function updateSize() {
+			setSize([window.innerWidth, window.innerHeight]);
+		}
+	window.addEventListener('resize', updateSize);
+	updateSize();
+	return () => window.removeEventListener('resize', updateSize);
+	}, []);
+	return  size;
+}
+
+function ShowWindowDimensions(props) {
+	const [width, height] = useWindowSize();
+	return  <span>Window size: {width} x {height}</span>;
+}
+
+
 const makePercent = (item, outOf)  =>{ 
-	return String(Math.round(100*item/outOf)) + '%'
+	return  String(Math.round(100*item/outOf)) + '%'
 }
 
 const barList = (props) => {
 	let lengths = [props.overRatedLength, props.ratedLength, props.underRatedLength, -1];
 	let classNames = ['overRated','rated', 'underRated', 'noVoltage'];
-	let totalLength = props.totalLength ? props.totalLength: 100;
+	let totalLength = props.totalLength ? props.totalLength: 0;
 	var barlist = []
 	var usedUp = 0;
 	var percent;
@@ -96,35 +124,12 @@ const barList = (props) => {
 }
 
 
-
-
-	
-
-
-
-/*
-	 let  l1= props.overRatedLength;
-	 let  l2 = props.ratedLength;
-	 let l3 = props.underRatedLength;
-	let lT = props.totalLength*2
-	let LengthToZeroV = l3
-
-	let p1 = makePercent(l1, lT);
-	let p2= makePercent((l2 - l1), lT);
-	let p3 = makePercent((l3 -l2), lT);
-
-
-
- return[{ className: 'overRated', percent:p1, length:l1},
- 			  {className: 'rated', percent:p2, length:l2},
- 			  {className: 'underRated', percent:p3, length:l3}]}
-
-*/
-
 const LimitBarEl = (props) => {
+	var key = 0;
 	let lengthScale = props['lengthScale']
 	let limitMap = props.barList.map((bar) =>
-		<div  
+		<div 
+		key = {`barEl${key++}`} 
 		className = {bar['className']}
 		style = {{width: `${bar['percent']}`}}> 
 		{bar['length']} {props['lengthScale']}
@@ -147,14 +152,6 @@ class Result extends React.Component{
 
 	render(){ 
 		const lengthScale = this.props.lengthScale;
-		/*const input = {
-			length:[
-				this.props.overRatedLength,
-				this.props.ratedLength,
-				this.props.underRatedLength,
-				this.props.noVoltageLength],
-			lengthScale:this.props.lengthScale
-		}*/
 
 		var barlist = barList(this.props)
 		return(
@@ -165,93 +162,6 @@ class Result extends React.Component{
 					lengthScale = {lengthScale}/>
 			</div>
 			);
-	}
-}
-
-/*************Pulldown Menues: kcmils child class of Voltage Drop *********************/
-/*********pulldown functions***********************/
-/*pull down list insert function*/
-
-const MenuList = (props) => {
-	let amps = 0;
-	let listItem = props.list.map((item)=>
-		<option key = {amps} value = {amps++}> {item} </option>
-		);
-	return (
-		<select
-				onChange = {props.onChange}
-				onClick = {props.onClick}>
-				{listItem}
-		</select>
-		);
-}
-
-/*************classs******************************/
-class Select extends React.Component{
-	constructor(props){
-		super(props);
-		this.handleChange = this.handleChange.bind(this);
-		this.handleClick = this.handleClick.bind(this);
-	
-	}
-
-	handleChange(event){
-		this.props.onSelect(event.target.value);
-	}
-	handleClick(){
-		this.props.onClick(this.props.scale)
-	}
-
-	render(){
-		const scale = this.props.scale
-		const items = this.props.items
-
-		return(
-			<fieldset>
-			<MenuList  
-				list = {items}
-				onChange = {this.handleChange}
-				onClick = {this.handleClick}
-			/>{scale}
-			</fieldset>
-			);
-	}
-}
-
-/********************Field input:  kcmils child of Volscalee Drop****************************/
-/********input feild functions*****************/
-
-/********class******************************/
-class Input extends React.Component{
-	constructor(props){
-		super(props);
-		this.handleChange = this.handleChange.bind(this);
-	}
-
-	handleChange(event){
-		//an attempt to serialize the event within child
-		/*this.props.onValueChange([voltage.target.value, this.props.unit]);*/
-
-    	this.props.onValueChange(event.target.value);
- 
-		//this.props.onValueChange(event.target.value);
-
-
-	};
-
-	render(){
-		const fieldValue = this.props.inputValue
-		const unit = this.props.unit;
-		return (
-			<fieldset >
-				<legend> Enter { unitType[unit] } </legend>
-				<div >
-					<input
-						value = {fieldValue}
-						onChange = {this.handleChange} />
-				</div>				
-			</fieldset>
-		);
 	}
 }
 
@@ -274,17 +184,6 @@ const toKcmils = (k,  length, amps, multiple) =>{}
 const toLength = (k, kcmils, amps, multiple) => {}
 const vdCalc = (k, kcmils, amps, length, mutiple,) => {}
 
-const VoltageDropCalc = (props) => {
-
-	let k = kValues[props.metal];
-	let cmils = parseInt(props.kcmils)*1000;
-	let vd = (2*k*props.amps*props.length)/cmils
-	let pvd = 100*vd/ props.volts
-	
-
-
-	return <p> The voltage drop  is {vd}Volts, making it a {pvd}persent voltage drop</p>;
-}
 
 const toLengthFromPVD = (k, phase, amps, volts, ft, cm, pvd, disScale)  => {
 	let multiple = phase === 1 ? 2: Math.sqrt(3) 
@@ -296,25 +195,9 @@ const toLengthFromPVD = (k, phase, amps, volts, ft, cm, pvd, disScale)  => {
 }
 
 
-const scanStrFor = (item, inString) => {
-	//return number of ocurrances
-	var counter = 0;
-	for (var i = 0;  i < inString.length; i++){
-		if (inString.charAt(i) === item) {counter++}
-	}
-	return counter
-}
 
-const isNumberKey = (number) => {
-	let str =number;
-	if ( str.charAt(str.length -1) === '.'  &&  !(str.indexOf('.') < str.length-1)) { return str} 
-	else  if ( str.charAt(str.length -1) === '0' &&  scanStrFor('.' , str) === 1) {return str}
-	else {	
-		const input = parseFloat(number);
-		if(Number.isNaN(input)){return ' '}
-		else {return Math.round(input*1000)/1000}	
-		}
-}
+
+
 
 // general convertion
 const tryConvert = (measure, convert, volts) => {
@@ -342,7 +225,7 @@ const toWatts = (amps, volts) => {return amps*volts}
 
 
 
-const getIndexNum = (item, list) => {///////////////////////////////////////////////////////////////////////
+const getIndexNum = (item, list) => {
 	for (var i=0; i < list.length; i++) {	
 		if (item < list[i]) {return i; break}
 	}
@@ -365,16 +248,14 @@ const vdToCmils = (phase, k, amps, length, vd) => {
 }
 
 const cmilsToVd = (phase, k, amps, length, cmils) => {
+	if(!Number.isNaN(cmils)){return ''}
 	let multiple = phase === 3 ? Math.sqrt(3):2;
 	return Math.round((multiple*k*amps*length *1000)/cmils)/1000
 }
 
 	
-//const vdToCmils = (phase, k, amps, length, vd)
-//const cmilsToVd = (phase, k, amps, length, cmils)
-//const getIndexNum = (item, list) => {
 
- 
+
 
 
 
@@ -398,14 +279,11 @@ class voltageDropInputs extends React.Component{
 		//select
 		this.handleAWGChange = this.handleAWGChange.bind(this);
 		this.handlekcmilsChange = this.handlekcmilsChange.bind(this);
-		this.handleWireClick = this.handleWireClick.bind(this);
 		this.handleVoltageChange = this.handleVoltageChange.bind(this);
-		this.handleVoltageClick = this.handleVoltageClick.bind(this);
 		this.handlePhaseChange = this.handlePhaseChange.bind(this);
-		this.handlePhaseClick = this.handlePhaseClick.bind(this);
+
 		//wire properties
 		this.handleMetalChange = this.handleMetalChange.bind(this);
-		this.handleMetalClick = this.handleMetalClick.bind(this);
 		this.handleTempChange = this.handleTempChange.bind(this);
 
 
@@ -416,7 +294,7 @@ class voltageDropInputs extends React.Component{
 			metal:'copper', 
 
 			//votage drop 
-			vdScale:'',
+			vdScale:'vd',
 			vd:0, 
 			vdMag:0,//selected value
 
@@ -459,7 +337,6 @@ class voltageDropInputs extends React.Component{
 		let voltage = voltages[event]
 		this.setState({voltage});
 	}
-	handleVoltageClick(event){}
 
 
 
@@ -467,40 +344,30 @@ class voltageDropInputs extends React.Component{
 	//installation
 			//power
 	handleAmpChange(event){
-		let amps = isNumberKey(event);
+		let amps = event;
 		this.setState({powScale:'amps', powMag:amps,  amps});
 	}
+
 	handleWattChange(event){
-		let powMag = isNumberKey(event);
+		let powMag =event;
 		let amps = tryConvert(powMag , toAmps, this.state.voltage ); 
 		this.setState({powScale: 'p', powMag, amps })
 	}
+
 	handlePhaseChange(event){
 		let phase = phases[event]
 		this.setState({phase})
 	}	
-	handlePhaseClick(event){}
-
-
 			//distance
 	handleFootChange(event){
-		let length = isNumberKey(event);
-/*
-		if (this.state.calcScale === 'vd'){
-			let cmils = tryCalculate(vdToCmils, this.state.phase, this.state.k, this.state.amps, length, this.state.vd);
-			let wireIndex = getIndexNum(cmils*1000, kValues);
-			this.setState({wireIndex})}
-*/
+		let length = event;
 		this.setState({disScale:'ft',distance:length, length});
-
-;
 	};
+
 	handleMeterChanged(event){
-		let distance = isNumberKey(event);
+		let distance = event;
 		let length = tryConvert(distance, toFeet);
 		this.setState({disScale:'m',distance, length});
-
-;
 	};
 
 	//Wire Properties
@@ -509,19 +376,15 @@ class voltageDropInputs extends React.Component{
 		let k = kCalc(metal, this.state.temperature)
 		this.setState({metal,k});
 	}
+
 	handleTempChange(event){	
-		let temperature= isNumberKey(event);
+		let temperature=event;
 		let k = kCalc(this.state.metal, temperature)	
 		this.setState({temperature, k})
 	}
 
 
-
 	//***selects***
-	 handleWireClick(event){	
-	}
-	
-
 
 	handleAWGChange(event){
 		let cmils= parseFloat(kcmils[event])*1000;
@@ -538,13 +401,13 @@ class voltageDropInputs extends React.Component{
 	}
 
 	handleVDChange(event){
-		var vdMag = isNumberKey(event);
+		var vdMag = event;
 		let vd = vdMag > this.state.voltage ? this.state.voltage:vdMag ;
 		this.setState({calcScale: 'VD', vdScale:'vd', vdMag:vd, vd});	
 	}
 	
 	handlePVDChange(event){
-		var vdMag = isNumberKey(event) ;
+		var vdMag = event;
 		vdMag = vdMag > 100?100:vdMag;
 		let  vd = tryConvert(vdMag, toVDfromPVD, this.state.voltage)
 		this.setState({calcScale:'VD', vdScale: 'pvd', vdMag, vd})	
@@ -554,6 +417,7 @@ class voltageDropInputs extends React.Component{
 
 	render(){
 		//calc variables
+
 		const phase = this.state.phase;
 		const k = this.state.k;
 		const amps = this.state.amps;
@@ -613,29 +477,30 @@ class voltageDropInputs extends React.Component{
 					<legend> Voltage Properties </legend>
 					<div className = 'fieldFlex'>
 						<div className = 'flexBox'>
-							<Select 
-								scale = 'Volts'
+							<IndexSelect 
+								scale = {unitType['volts']}
 								items= {voltages}
-								onSelect = {this.handleVoltageChange}
-								onClick = {this.handleVoltageClick}/>
+								onSelect = {this.handleVoltageChange}/>
 						</div>
 
 						<div className = 'flexBox'>		
-							<Select 
-								scale = 'Phases'
+							<IndexSelect 
+								scale = {unitType['phase']}
 								items = {phases}
-								onSelect = {this.handlePhaseChange}
-								onClick = {this.handlePhaseClick}/>	
+								onSelect = {this.handlePhaseChange}/>	
 						</div>
+
 						<div className = 'flexBox'>		
-							<Input 
-							unit = "vd"
+							<NumInput 
+							unit = {unitType['vd']}
 							inputValue = {vd}
 							onValueChange = {this.handleVDChange}/>
 						</div>
+
 						<div className = 'flexBox'>		
-							<Input 
-							unit = "pvd"
+							<NumInput 
+							decplace = {decplace}
+							unit = {unitType['pvd']}
 							inputValue = {pvd}
 							onValueChange = {this.handlePVDChange}/>
 						</div>
@@ -649,14 +514,16 @@ class voltageDropInputs extends React.Component{
 					<div className = 'fieldFlex'>
 						<div className = 'flexBox'>
 
-							<Input
-							unit = "amps" 
+							<NumInput
+							decplace = {decplace}
+							unit = {unitType['amps']} 
 							inputValue = {ampInput}
 							onValueChange = {this.handleAmpChange}/>
 						</div>
 						<div className = 'flexBox'>
-							<Input 
-							unit = "p"
+							<NumInput 
+							decplace = {decplace}
+							unit = {unitType['watts']}
 							inputValue = {wattInput}
 							onValueChange = {this.handleWattChange}/>
 
@@ -664,14 +531,16 @@ class voltageDropInputs extends React.Component{
 
 						</div>
 						<div className = 'flexBox'>
-							<Input 
-								unit = "ft"
+							<NumInput 
+								decplace = {decplace}
+								unit = {unitType['feet']}
 								inputValue = {feet}
 								onValueChange = {this.handleFootChange}/>
 						</div>
 						<div className = 'flexBox'>
-							<Input 
-								unit = "m"
+							<NumInput 
+								decplace = {decplace}
+								unit = {unitType['meters']}
 								inputValue = {meters}
 								onValueChange = {this.handleMeterChange}/>
 						</div>			
@@ -681,33 +550,32 @@ class voltageDropInputs extends React.Component{
 				<legend> Wire Properties </legend>
 					<div className = 'fieldFlex'>
 						<div className = 'flexBox'>
-							<Select 
-								scale = 'Metals'
+							<IndexSelect 
+								scale = ''
 								items = {metals}
-								onSelect = {this.handleMetalChange}
-								onClick = {this.handleMetalClick}/>
+								onSelect = {this.handleMetalChange}/>
 						</div>
 						<div className = 'flexBox'>
-							<Select  
-								scale= 'AWG'
+							<IndexSelect  
+								scale= {unitType['gauge']}
 								items = {AWGState}
 								onSelect = {this.handleAWGChange}
-								onClick = {this.handleWireClick}
-								/>
+							/>								
 						</div>
 						<div className = 'flexBox'>
-							<Select
-								scale= 'kcmils'
+							<IndexSelect
+								scale= {unitType['kcmils']}
 								items = {milsState}
 								onSelect = {this.handlekcmilsChange}
 								onClick = {this.handleWireClick} 
-								/>
+							/>
 						</div>
-
-							<Input 
-							unit = "temp"
+							<NumInput 
+							decplace = {decplace}
+							unit = {unitType['temp']}
 							inputValue = {this.state.temperature}
-							onValueChange = {this.handleTempChange}/>
+							onValueChange = {this.handleTempChange}
+						/>
 					</div>
 			</fieldset>
 
