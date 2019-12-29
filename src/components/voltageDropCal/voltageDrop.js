@@ -126,7 +126,6 @@ const barList = (props) => {
 
 const LimitBarEl = (props) => {
 	var key = 0;
-	let lengthScale = props['lengthScale']
 	let limitMap = props.barList.map((bar) =>
 		<div 
 		key = {`barEl${key++}`} 
@@ -220,15 +219,18 @@ const toFeet = (meters)=> { return meters * 3.281};
 
 //power/amps  convertions
 const toAmps = (watts, volts) => {return watts/volts}
-const toWatts = (amps, volts) => {return amps*volts}
+const toWatts = (amps, volts) => {return amps*volts};
 
-
-
+//convert cm
+const kcmToCm = (kcmils) =>{return kcmils*1000};
+const cmToKcm = (cm) => {return cm/1000};
 
 const getIndexNum = (item, list) => {
 	for (var i=0; i < list.length; i++) {	
-		if (item < list[i]) {return i; break}
+		if (item < list[i]) {return i;}
+
 	}
+	return 1
 }
 
 
@@ -248,7 +250,7 @@ const vdToCmils = (phase, k, amps, length, vd) => {
 }
 
 const cmilsToVd = (phase, k, amps, length, cmils) => {
-	if(!Number.isNaN(cmils)){return ''}
+	if(Number.isNaN(cmils)){return ''}
 	let multiple = phase === 3 ? Math.sqrt(3):2;
 	return Math.round((multiple*k*amps*length *1000)/cmils)/1000
 }
@@ -403,6 +405,7 @@ class voltageDropInputs extends React.Component{
 	handleVDChange(event){
 		var vdMag = event;
 		let vd = vdMag > this.state.voltage ? this.state.voltage:vdMag ;
+
 		this.setState({calcScale: 'VD', vdScale:'vd', vdMag:vd, vd});	
 	}
 	
@@ -410,20 +413,21 @@ class voltageDropInputs extends React.Component{
 		var vdMag = event;
 		vdMag = vdMag > 100?100:vdMag;
 		let  vd = tryConvert(vdMag, toVDfromPVD, this.state.voltage)
+
 		this.setState({calcScale:'VD', vdScale: 'pvd', vdMag, vd})	
 	};
 
-	handleMetalClick(){}
 
 	render(){
 		//calc variables
+
 
 		const phase = this.state.phase;
 		const k = this.state.k;
 		const amps = this.state.amps;
 		const length = this.state.length;
 		const volts = this.state.voltage;
-		const watts = this.state.watts;
+		//const watts = this.state.watts;
 
     	//power field
     	const  powScale = this.state.powScale;
@@ -444,10 +448,11 @@ class voltageDropInputs extends React.Component{
 		const wireScale = this.state.wireScale;
 		const calcScale = this.state.calcScale;
 	    const cmils = calcScale === 'VD'? vdToCmils(phase, k, amps, length, this.state.vd):this.state.cmils;
-		const wireIndex = calcScale ==='VD' ? getIndexNum(cmils/1000, kcmils):this.state.wireIndex;
+		const wireIndex = calcScale ==='VD' ? getIndexNum(cmToKcm(cmils), kcmils):this.state.wireIndex;
 
 		//converts voltage drop from a constant to a variable of wire size
-		const wireVdMag = tryCalculate(cmilsToVd, phase, k, amps, length, cmils);
+		const wireVdMag = cmilsToVd(phase, k, amps, length, cmils);
+
 		const vdMag = calcScale === "CM" ? 
 			(vdScale === 'vd' ? wireVdMag: tryConvert(wireVdMag,toPVDfromVD, volts)):
 			this.state.vdMag;
@@ -466,9 +471,9 @@ class voltageDropInputs extends React.Component{
 
     	//wire range bars
     	const ft = this.state.length;
-    	const totalLength = disScale == 'm' ? tryConvert(ft, toMeters):ft;
-    	var biggerCM = kcmils[wireIndex + 1]*1000;
-    	var smallerCM = kcmils[wireIndex - 1]*1000;
+    	const totalLength = disScale === 'm' ? tryConvert(ft, toMeters):ft;
+    	var biggerCM = kcmToCm(kcmils[wireIndex + 1]);
+    	var smallerCM = kcmToCm(kcmils[wireIndex - 1]);
 												
 
 		return(

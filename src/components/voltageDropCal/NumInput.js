@@ -53,7 +53,7 @@ class NumInput extends React.Component{
 		const unit = this.props.unit;
 		return (
 			<fieldset >
-				<div style = {{display: 'flex'}}>
+				<div style = {{display: 'flex', whiteSpace: 'nowrap'}}>
 					<input style = {{width: '5em', height: '1em'}}
 						value = {fieldValue}
 						onChange = {this.handleChange}/>

@@ -3,7 +3,7 @@ import  './voltageDropStyles.css';
 ////////////////////////notes//////////////////////////////////////
 /*creates a pulldown select that displays a list of values but returns the index number.
 	props:
-		scale = a string that displays next to the select(also used for key)
+		scale = a string that displays next to the select
 		items = a [list] of values
 		onSelect = parent event handler
 	returns ===> the index number of the given list
@@ -48,10 +48,12 @@ class IndexSelect extends React.Component{
 
 		return(
 			<fieldset>
-			<MenuList  
-				list = {items}
-				onChange = {this.handleChange}
-			/>{scale}
+			<div style = {{display: 'flex', whiteSpace: 'nowrap'}}>
+				<MenuList  style = {{width: '5em', height: '1em'}}
+					list = {items}
+					onChange = {this.handleChange}
+				/>{scale}
+			</div>
 			</fieldset>
 			);
 	}
