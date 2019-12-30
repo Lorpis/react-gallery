@@ -1,11 +1,8 @@
 import React,   { useLayoutEffect, useState } from 'react';
 import  NumInput from './NumInput';
 import IndexSelect from './IndexSelect';
+import LineGraph from './LineGraph'
 import  './voltageDropStyles.css';
-
-
-
-
 
 /********************Voltage Drop constants**********************/
 /*variable for html display*/
@@ -22,12 +19,9 @@ const unitType = {
 	watts:'w',
 	temp:'°c',
 	gauge:'awg',
-
-
-
 };
 
-const decplace  = 1000;//defaut persisi
+const decplace  = 1000;//th   defaut decimal place
 
 //pulldown list items
 const voltages = [120, 208, 240, 277, 347, 416, 480, 600];
@@ -91,78 +85,7 @@ function ShowWindowDimensions(props) {
 }
 
 
-const makePercent = (item, outOf)  =>{ 
-	return  String(Math.round(100*item/outOf)) + '%'
-}
 
-const barList = (props) => {
-	let lengths = [props.overRatedLength, props.ratedLength, props.underRatedLength, -1];
-	let classNames = ['overRated','rated', 'underRated', 'noVoltage'];
-	let totalLength = props.totalLength ? props.totalLength: 0;
-	var barlist = []
-	var usedUp = 0;
-	var percent;
-	for (var i = 0; i < lengths.length; i++){
-		let length = lengths[i] <= 0 ? 'No Voltage':lengths[i];
-		let last = i > 0 ? lengths[i-1]: 0 
-		let sectionLength = length - last;
-		if ((sectionLength + usedUp) < totalLength){
-			usedUp += sectionLength;
-			percent = makePercent(sectionLength, totalLength);
-			barlist[i] = {className:classNames[i], percent:percent, length:length}
-		} else  if (totalLength > usedUp) { 
-			sectionLength = totalLength - usedUp
-			usedUp = totalLength
-			percent = makePercent(sectionLength, totalLength)
-			barlist[i] = {className:classNames[i], percent:percent, length:length}
-		} else if (usedUp  >=  totalLength  ){
-			percent = makePercent(sectionLength, totalLength)
-			barlist[i] = {className:classNames[i], percent:'0%', length:length}}
-		
-	}
-	return barlist
-}
-
-
-const LimitBarEl = (props) => {
-	var key = 0;
-	let limitMap = props.barList.map((bar) =>
-		<div 
-		key = {`barEl${key++}`} 
-		className = {bar['className']}
-		style = {{width: `${bar['percent']}`}}> 
-		{bar['length']} {props['lengthScale']}
-		</div>
-		)
-		return (
-			<div className = 'distanceMeter'>
-				{limitMap}
-			</div>		
-		)}	
-
-
-class Result extends React.Component{
-	constructor(props){
-		super(props);
-		this.handleChange = this.handleChange.bind(this);
-	}
-	handleChange(){}
-
-
-	render(){ 
-		const lengthScale = this.props.lengthScale;
-
-		var barlist = barList(this.props)
-		return(
-			<div>
-				<legend>{this.props.legendTitle}</legend>
-				<LimitBarEl
-					barList = {barlist}
-					lengthScale = {lengthScale}/>
-			</div>
-			);
-	}
-}
 
 /********************Voltage Drop: root class***************************************/
 /***********Voltage Drop functions************/
@@ -182,21 +105,20 @@ const toVDfromPVD =(pvd, volts) => {return (pvd/100)*volts}
 const toKcmils = (k,  length, amps, multiple) =>{}
 const toLength = (k, kcmils, amps, multiple) => {}
 const vdCalc = (k, kcmils, amps, length, mutiple,) => {}
+const multiple = (phase) => {return phase === 3? Math.sqrt(3):2 }
+
+
+
 
 
 const toLengthFromPVD = (k, phase, amps, volts, ft, cm, pvd, disScale)  => {
-	let multiple = phase === 1 ? 2: Math.sqrt(3) 
+	let m = multiple(phase);
 	let vd = (pvd*volts)/100
-	let length =  (vd*cm)/(k*multiple *amps)
+	let length =  (vd*cm)/(k*m*amps)
 	length = Number.isNaN(length) ? length = 0: length;
 	length = disScale === 'm' ? tryConvert(length, toMeters): length;
 	return  Math.round(length*100)/100;
 }
-
-
-
-
-
 
 // general convertion
 const tryConvert = (measure, convert, volts) => {
@@ -226,11 +148,17 @@ const kcmToCm = (kcmils) =>{return kcmils*1000};
 const cmToKcm = (cm) => {return cm/1000};
 
 const getIndexNum = (item, list) => {
-	for (var i=0; i < list.length; i++) {	
-		if (item < list[i]) {return i;}
+	for (var i=1; i < list.length; i++) {	
+		if (item <= list[i]) {return i;}
 
 	}
 	return 1
+}
+const getIndexValue = (item, list)=>{
+	for(var i = 1; i < list.length; i++){
+		if(item <= list[i]) {return parseFloat(list[i]);}
+	}
+	return 0
 }
 
 
@@ -405,7 +333,6 @@ class voltageDropInputs extends React.Component{
 	handleVDChange(event){
 		var vdMag = event;
 		let vd = vdMag > this.state.voltage ? this.state.voltage:vdMag ;
-
 		this.setState({calcScale: 'VD', vdScale:'vd', vdMag:vd, vd});	
 	}
 	
@@ -447,7 +374,13 @@ class voltageDropInputs extends React.Component{
 		const vdScale =  this.state.vdScale;
 		const wireScale = this.state.wireScale;
 		const calcScale = this.state.calcScale;
-	    const cmils = calcScale === 'VD'? vdToCmils(phase, k, amps, length, this.state.vd):this.state.cmils;
+		const rawCm = vdToCmils(phase, k, amps, length, this.state.vd);
+		let rawKcm = rawCm/1000;
+		let indexedKcm = getIndexValue(rawKcm, kcmils) ;
+		const indexedCm = indexedKcm*1000;
+
+	    const cmils = calcScale === 'VD' ?  indexedCm:this.state.cmils;
+	
 		const wireIndex = calcScale ==='VD' ? getIndexNum(cmToKcm(cmils), kcmils):this.state.wireIndex;
 
 		//converts voltage drop from a constant to a variable of wire size
@@ -474,6 +407,7 @@ class voltageDropInputs extends React.Component{
     	const totalLength = disScale === 'm' ? tryConvert(ft, toMeters):ft;
     	var biggerCM = kcmToCm(kcmils[wireIndex + 1]);
     	var smallerCM = kcmToCm(kcmils[wireIndex - 1]);
+   
 												
 
 		return(
@@ -584,31 +518,19 @@ class voltageDropInputs extends React.Component{
 					</div>
 			</fieldset>
 
-				<Result
-					legendTitle = 'One wire size larger'
-					lengthScale = {this.state.disScale}
-					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, biggerCM, 3,disScale)}
-					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, biggerCM, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, biggerCM, 100,disScale)}
-					/> 
+					<LineGraph
 
-					<Result
-					legendTitle = 'Selected wire size'
-					lengthScale =  {this.state.disScale}
-					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cmils,3,disScale)}
-					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 100,disScale)}
 					/>
-				<Result
-					legendTitle = 'One wire size smalerl'
+
+					<LineGraph
+					legendTitle = {`Voltage drops (3% and 5%) over ${totalLength}${disScale}`}
 					lengthScale =  {this.state.disScale}
 					totalLength = {totalLength}
-					overRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, smallerCM, 3,disScale)}
-					ratedLength = {toLengthFromPVD(k, phase, amps, volts, ft, smallerCM, 5,disScale)}
-					underRatedLength = {toLengthFromPVD(k, phase, amps, volts, ft, smallerCM, 100,disScale)}
-					/> 
+					section1 = {toLengthFromPVD(k, phase, amps, volts, ft, cmils,3,disScale)}
+					section2 = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 5,disScale)}
+					section3 = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 100,disScale)}
+					/>
+
 
 
 	</div>
