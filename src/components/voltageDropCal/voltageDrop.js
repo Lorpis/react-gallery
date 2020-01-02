@@ -3,64 +3,28 @@ import  NumInput from './NumInput';
 import IndexSelect from './IndexSelect';
 import LineGraph from './LineGraph'
 import  './voltageDropStyles.css';
+import unitTag from './unitTag.js';
+import kValues from './kValues.js';
+import wireSizes from './wireSizes.js';
+import voltages from './voltages.js'
+
+
+
 
 /********************Voltage Drop constants**********************/
 /*variable for html display*/
-const unitType = {
-	phase:'∅',
-	volts:'v',
-	amps:'a',
-	feet:'ft',
-	meters:'m',
-	kcmils:'kcm',
-	metal:'Metal',
-	pvd:<div> % v<sub>↓</sub></div>,
-	vd:<div> v<sub>↓</sub></div>,
-	watts:'w',
-	temp:'°c',
-	gauge:'awg',
-};
+
 
 const decplace  = 1000;//th   defaut decimal place
 
 //pulldown list items
-const voltages = [120, 208, 240, 277, 347, 416, 480, 600];
+
 const phases = [1, 3];
-
-const metals = ['copper', 'aluminum', 'carbon', 'constantan', 'gold', 'iron', 'lead', 'manganin', 'mercury', 'nichrome', 'nickle', 'platinum', 'silver', 'tungsten']
-const kValues = {copper:{k:10.4, tempCo:0.0039}, 
-						  aluminum:{k:17, tempCo:0.004},
-						  carbon:{k:22000, tempCo:-0.0004}, 
-						  constantan:{k:295, tempCo:0.000002},
-						  gold:{k:14, tempCo:0.004}, 
-						  iron:{k:60, tempCo:0.0055},
-						  lead:{k:126, tempCo:0.0043}, 
-						  manganin:{k:265, tempCo:0},
-						  mercury:{k:675, tempCo:0.00088}, 
-						  nichrome:{k:675, tempCo:0.0002},
-						  nickle:{k:52, tempCo:0.005}, 
-						  platinum:{k:66, tempCo:0.0036},
-						  silver:{k:9.6, tempCo:0.0038}, 
-						  tungsten:{k:33.8, tempCo:0.005}
-						  }//mil-foot
-
+const metals = Object.keys(kValues);
 
 //CEC given standard wire sizes for pulldown
-const gauges = ['Select','18','16','14',
-						   '12','10','8',
-						   '6','4','3',
-						   '2','1','0',
-						   '00','000','0000',]
-const kcmils = ['Select','1.624','2.583','4.107',
-						'6.530','10.383','16.509',
-						'26.251','41.740','52.633',
-						'66.369','83.690','105.531',
-						'133.072','167.800','211.592',
-						'250','300','350',
-						'400','500','600',
-						'700','750','800',
-						'900','1000','1250',
-						'1500','1750','2000']
+const gauges = wireSizes['gauges'];
+const kcmils = wireSizes['kcmils'];
 
 
 /**************voltage drop graphical display*********************************/
@@ -101,15 +65,7 @@ const kCalc = (metal, temp) => {
 
 const toPVDfromVD = (vd, volts) => {return (vd*100)/volts}
 const toVDfromPVD =(pvd, volts) => {return (pvd/100)*volts}
-
-const toKcmils = (k,  length, amps, multiple) =>{}
-const toLength = (k, kcmils, amps, multiple) => {}
-const vdCalc = (k, kcmils, amps, length, mutiple,) => {}
 const multiple = (phase) => {return phase === 3? Math.sqrt(3):2 }
-
-
-
-
 
 const toLengthFromPVD = (k, phase, amps, volts, ft, cm, pvd, disScale)  => {
 	let m = multiple(phase);
@@ -131,10 +87,6 @@ const tryConvert = (measure, convert, volts) => {
 		}
 }
 
-
-
-
-
 //distance convertions
 const toMeters = (feet) => { return feet / 3.281};
 const toFeet = (meters)=> { return meters * 3.281};
@@ -150,52 +102,40 @@ const cmToKcm = (cm) => {return cm/1000};
 const getIndexNum = (item, list) => {
 	for (var i=1; i < list.length; i++) {	
 		if (item <= list[i]) {return i;}
-
 	}
 	return 1
-}
+};
+
 const getIndexValue = (item, list)=>{
 	for(var i = 1; i < list.length; i++){
 		if(item <= list[i]) {return parseFloat(list[i]);}
 	}
 	return 0
-}
-
-
+};
 
 const tryCalculate  = (convert, phase, k, amps, length, volts, cmils, vd) => {
 	var output = convert(phase,k, amps, length, volts, cmils, vd);
-
 	return output;
-		}
+};
 
 //result either Vdrop or wiresize cmil or fd scale
 const vdToCmils = (phase, k, amps, length, vd) => {
 	let multiple = phase === 3 ? Math.sqrt(3):2;
 	let value = Math.round((multiple*k*amps*length)/vd);
 	return  value 
-
-}
+};
 
 const cmilsToVd = (phase, k, amps, length, cmils) => {
 	if(Number.isNaN(cmils)){return ''}
 	let multiple = phase === 3 ? Math.sqrt(3):2;
 	return Math.round((multiple*k*amps*length *1000)/cmils)/1000
-}
-
-	
-
-
-
-
+};
 
 /************parent class ********************/
 class voltageDropInputs extends React.Component{
 	constructor(props){
 		super(props);
 		//field
-		
-		
 		this.handleLChange = this.handleLChange.bind(this);
 		this.handleMetalChange = this.handleMetalChange.bind(this);
 		this.handlePVDChange = this.handlePVDChange.bind(this);
@@ -267,9 +207,6 @@ class voltageDropInputs extends React.Component{
 		let voltage = voltages[event]
 		this.setState({voltage});
 	}
-
-
-
 
 	//installation
 			//power
@@ -417,21 +354,21 @@ class voltageDropInputs extends React.Component{
 					<div className = 'fieldFlex'>
 						<div className = 'flexBox'>
 							<IndexSelect 
-								scale = {unitType['volts']}
+								scale = {unitTag['volts']}
 								items= {voltages}
 								onSelect = {this.handleVoltageChange}/>
 						</div>
 
 						<div className = 'flexBox'>		
 							<IndexSelect 
-								scale = {unitType['phase']}
+								scale = {unitTag['phase']}
 								items = {phases}
 								onSelect = {this.handlePhaseChange}/>	
 						</div>
 
 						<div className = 'flexBox'>		
 							<NumInput 
-							unit = {unitType['vd']}
+							unit = {unitTag['vd']}
 							inputValue = {vd}
 							onValueChange = {this.handleVDChange}/>
 						</div>
@@ -439,7 +376,7 @@ class voltageDropInputs extends React.Component{
 						<div className = 'flexBox'>		
 							<NumInput 
 							decplace = {decplace}
-							unit = {unitType['pvd']}
+							unit = {unitTag['pvd']}
 							inputValue = {pvd}
 							onValueChange = {this.handlePVDChange}/>
 						</div>
@@ -455,14 +392,14 @@ class voltageDropInputs extends React.Component{
 
 							<NumInput
 							decplace = {decplace}
-							unit = {unitType['amps']} 
+							unit = {unitTag['amps']} 
 							inputValue = {ampInput}
 							onValueChange = {this.handleAmpChange}/>
 						</div>
 						<div className = 'flexBox'>
 							<NumInput 
 							decplace = {decplace}
-							unit = {unitType['watts']}
+							unit = {unitTag['watts']}
 							inputValue = {wattInput}
 							onValueChange = {this.handleWattChange}/>
 
@@ -472,14 +409,14 @@ class voltageDropInputs extends React.Component{
 						<div className = 'flexBox'>
 							<NumInput 
 								decplace = {decplace}
-								unit = {unitType['feet']}
+								unit = {unitTag['feet']}
 								inputValue = {feet}
 								onValueChange = {this.handleFootChange}/>
 						</div>
 						<div className = 'flexBox'>
 							<NumInput 
 								decplace = {decplace}
-								unit = {unitType['meters']}
+								unit = {unitTag['meters']}
 								inputValue = {meters}
 								onValueChange = {this.handleMeterChange}/>
 						</div>			
@@ -496,14 +433,14 @@ class voltageDropInputs extends React.Component{
 						</div>
 						<div className = 'flexBox'>
 							<IndexSelect  
-								scale= {unitType['gauge']}
+								scale= {unitTag['gauge']}
 								items = {AWGState}
 								onSelect = {this.handleAWGChange}
 							/>								
 						</div>
 						<div className = 'flexBox'>
 							<IndexSelect
-								scale= {unitType['kcmils']}
+								scale= {unitTag['kcmils']}
 								items = {milsState}
 								onSelect = {this.handlekcmilsChange}
 								onClick = {this.handleWireClick} 
@@ -511,17 +448,12 @@ class voltageDropInputs extends React.Component{
 						</div>
 							<NumInput 
 							decplace = {decplace}
-							unit = {unitType['temp']}
+							unit = {unitTag['temp']}
 							inputValue = {this.state.temperature}
 							onValueChange = {this.handleTempChange}
 						/>
 					</div>
 			</fieldset>
-
-					<LineGraph
-
-					/>
-
 					<LineGraph
 					legendTitle = {`Voltage drops (3% and 5%) over ${totalLength}${disScale}`}
 					lengthScale =  {this.state.disScale}
@@ -530,11 +462,7 @@ class voltageDropInputs extends React.Component{
 					section2 = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 5,disScale)}
 					section3 = {toLengthFromPVD(k, phase, amps, volts, ft, cmils, 100,disScale)}
 					/>
-
-
-
 	</div>
-
 			);
 	}
 }
