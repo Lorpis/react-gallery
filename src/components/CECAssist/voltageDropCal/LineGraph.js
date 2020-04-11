@@ -75,7 +75,7 @@ class LineGraph extends React.Component{
 		var barlist = barList(this.props)
 		return(
 			<div className = 'liniarGragh' style = {{ display: 'flex', flexDirection: 'column', height: "1em"}}>
-				<div sclassName = 'liniarTitle' style = {{	backgroundColor: 'yellow',
+				<div className = 'liniarTitle' style = {{	backgroundColor: 'yellow',
 				background: 'linearGradient(90deg, rgba(6,180,244,0.6640952845982142) 80%, rgba(9,118,121,1) 80%, rgba(0,2,36,1) 100%)'}}
 
 

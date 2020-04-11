@@ -1,5 +1,5 @@
 import React from 'react';
-import  './voltageDropStyles.css';
+import  '../voltageDropCal/voltageDropStyles.css';
 ////////////////////////notes//////////////////////////////////////
 /*creates a pulldown select that displays a list of values but returns the index number.
 	props:

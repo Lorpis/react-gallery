@@ -1,0 +1,35 @@
+
+
+
+
+
+
+
+.container-drag{
+	display: flex;
+	flex-direction: column;
+}
+
+
+
+.task-header {
+	display: flex;
+	flex-direction: row;
+
+}
+.field{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+
+}
+.wip{
+	display: flex;
+	flex-direction: column;
+	border: solid black 5px;
+}
+.droppable{
+	display: flex;
+	flex-direction: column;
+	border: solid black 5px;
+}

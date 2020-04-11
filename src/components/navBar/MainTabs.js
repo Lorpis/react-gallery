@@ -3,8 +3,8 @@ import  './tabStyles.css';
 import ConCalc from '../../exercises/IsBoiling.js';
 import Home from '../home/Home.js';
 import Grid from '../CECAssist/Grid';
-import VoltageDrop from '../voltageDropCal/voltageDrop.js';
-
+import VoltageDrop from '../CECAssist/voltageDropCal/VoltageDropMain.js';
+import DragDrop from '../CECAssist/distribution/dragNDrop.js';
 
 const ConCalc1= ConCalc;
 
@@ -37,7 +37,7 @@ const navObjs ={
 headerTabs: [
 
 	{name:'Home',   key: '0', 
-		children:[  {display:true, feature:VoltageDrop, key:'0.1'}]
+		children:[  {display:true, feature:DragDrop, key:'0.1'}]
 	}, 
  	{name:'Web Apps', key:'1', 
  		children:[ 
@@ -45,7 +45,7 @@ headerTabs: [
  				children:[ {display:"Back", action:true,  key:'up'} ]
  			},
  			{name:'CEC Asist', key:'1.1',
- 				children: [ {display:true,  key:'1.1.2'} ]
+ 				children: [ {display:true, feature:VoltageDrop, key:'1.1.2'} ]
  			},
  			{name:'Convertion Calculators', key:'1.2',
  				children: [ { display:true, feature:ConCalc, key:'1.2.1'  }  ]
@@ -141,7 +141,7 @@ class NavBar extends React.Component {
 			lastactiveId: null,
 			activeSiblings:navObjs.headerTabs,
 			navList:[],
-			featured:VoltageDrop
+			featured:DragDrop
 			}
 		this.handleChildClick = this.handleChildClick.bind(this);	
 	};

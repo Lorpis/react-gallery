@@ -1,12 +1,12 @@
 import React,   { useLayoutEffect, useState } from 'react';
-import  NumInput from './NumInput';
-import IndexSelect from './IndexSelect';
+import  NumInput from '../assets/NumInput';
+import IndexSelect from '../assets/IndexSelect';
 import LineGraph from './LineGraph'
 import  './voltageDropStyles.css';
-import unitTag from './unitTag.js';
-import kValues from './kValues.js';
-import wireSizes from './wireSizes.js';
-import voltages from './voltages.js'
+import unitTag from '../tables/unitTag.js';
+import kValues from '../tables/kValues.js';
+import wireSizes from '../tables/wireSizes.js';
+import voltages from '../tables/voltages.js'
 
 
 
@@ -132,7 +132,7 @@ const cmilsToVd = (phase, k, amps, length, cmils) => {
 };
 
 /************parent class ********************/
-class voltageDropInputs extends React.Component{
+class VoltageDrop extends React.Component{
 	constructor(props){
 		super(props);
 		//field
@@ -468,4 +468,4 @@ class voltageDropInputs extends React.Component{
 }
 
 
-export default voltageDropInputs ;
+export default VoltageDrop ;

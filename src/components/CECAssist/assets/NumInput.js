@@ -1,5 +1,5 @@
 import React from 'react';
-import  './voltageDropStyles.css';
+import  '../voltageDropCal/voltageDropStyles.css';
 
 ////////////////////////////notes///////////////////////////////////
 //input feild that only accepts numbers  to a given decimal place
