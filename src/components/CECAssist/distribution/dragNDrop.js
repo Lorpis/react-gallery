@@ -51,7 +51,7 @@ class AppDragDropDemo extends React.Component {
        });
        
        this.setState({
-           ...this.state,
+         
            tasks
        });
     }
@@ -77,7 +77,7 @@ class AppDragDropDemo extends React.Component {
 
 	return (
 		<div className="container-drag">     
-			<div className="header"> <h2 >DRAG & DROP DEMO</h2></div>
+			<div className="dndheader"> DRAG & DROP DEMO</div>
 		    <div className = "field"> 
 
 				<div className="wip"        
@@ -87,7 +87,7 @@ class AppDragDropDemo extends React.Component {
 					{task.wip}                     
 				</div>   
 
-				<div className="droppable"      
+				<div className=" "      
 					onDragOver={(e)=>this.onDragOver(e)}                          
 					onDrop={(e)=>this.onDrop(e, "complete")}>                           
 					<span className="task-header">COMPLETED</span>                           

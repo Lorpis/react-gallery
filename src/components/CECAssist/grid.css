@@ -39,7 +39,7 @@
 					color: white;
 				}
 				.gridBox {
-					display:box;
+					display:flex;
 					height: 500px;
 					width: 100% ;
 					background-color: gray;

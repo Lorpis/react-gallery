@@ -7,8 +7,10 @@ import DragDrop from '../components/CECAssist/distribution/dragNDrop.js';
 //import voltageDrop from '../components/CECAssist/voltageDropCal/voltageDrop.js';
 //import VoltageDropMain from '../components/CECAssist/voltageDropCal/VoltageDropMain.js';
 //import Color from '../components/cssCals/cssTools/ColorMixer.js';
+import Asteroids from '../components/games/asteroids/Asteroids';
 import { HashRouter, Rout, Link, Switch } from 'react-router-dom';
 //classes need to be caps to work
+//<Asteroids/>
 const App  = () => {
 
 	
@@ -17,6 +19,7 @@ const App  = () => {
 			<div className = 'app'>
 				<Header/>
 				<MainTabs/>	
+				
 			</div>
 		</HashRouter>
 		);

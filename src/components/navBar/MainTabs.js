@@ -5,6 +5,8 @@ import Home from '../home/Home.js';
 import Grid from '../CECAssist/Grid';
 import VoltageDrop from '../CECAssist/voltageDropCal/VoltageDropMain.js';
 import DragDrop from '../CECAssist/distribution/dragNDrop.js';
+import FracGen from '../webApps/fractalGen/FracGen.js';
+import Asteroids from '../games/asteroids/Asteroids.js';
 
 const ConCalc1= ConCalc;
 
@@ -37,7 +39,7 @@ const navObjs ={
 headerTabs: [
 
 	{name:'Home',   key: '0', 
-		children:[  {display:true, feature:DragDrop, key:'0.1'}]
+		children:[  {display:true, feature:FracGen, key:'0.1'}]
 	}, 
  	{name:'Web Apps', key:'1', 
  		children:[ 
@@ -51,7 +53,7 @@ headerTabs: [
  				children: [ { display:true, feature:ConCalc, key:'1.2.1'  }  ]
  			},
  			{name:'Fractal Generator', key:'1.3',
- 				children: [ {display:true, key:'1.3.1'  }  ]
+ 				children: [ {display:true, feature:FracGen, key:'1.3.1'  }  ]
  			},
  		]
  	},
@@ -86,8 +88,8 @@ headerTabs: [
  			{name:"Back", key:"Back",
  				children:[ {display:"Back", action:true, key:'up'} ]
  			},
- 			{name:'Game1', key:'3.1',
- 				children: [ { display:true, key:'3.1.1'  } ] 
+ 			{name:'Asteroids', key:'3.1',
+ 				children: [ { display:true, feature:Asteroids, key:'3.1.1'  } ] 
  			},
  			{name:'Game2', key:'3.2',
  				children: [ { display:true, key:'3.1.2'  } ] 
@@ -141,7 +143,7 @@ class NavBar extends React.Component {
 			lastactiveId: null,
 			activeSiblings:navObjs.headerTabs,
 			navList:[],
-			featured:DragDrop
+			featured:FracGen
 			}
 		this.handleChildClick = this.handleChildClick.bind(this);	
 	};

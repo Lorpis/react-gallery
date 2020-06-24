@@ -1,0 +1,21 @@
+
+.gameWindow{
+overflow-x: hidden;
+overflow-y: hidden;
+border: solid black 5px;
+position:relative;
+}
+
+.ship{
+  background-color: none;
+  display: inline-block;
+  position: absolute;
+  border: 5px;
+}
+
+.bullet{
+	display:inline-block;
+	background-color: solid green;
+	position: absolute;
+}
+
