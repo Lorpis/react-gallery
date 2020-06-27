@@ -35,6 +35,7 @@
         }//constructor
     
         setContext(r) {
+        	if(r != null){
             var wv = this.worldView;
             let vp = this.state.viewPort;
             this.ctx = r.getContext("2d");
@@ -59,7 +60,8 @@
             
             let t1 = performance.now();
             this.ctx.putImageData(imgData,0,0)
-            console.log("rendertime " + (t1 - t0) + " milliseconds.");      
+            console.log("rendertime " + (t1 - t0) + " milliseconds.");  
+            }    
     
         }//setContext
     
@@ -95,6 +97,10 @@
             this.ctx.putImageData(imgData,0,0)
             console.log("rendertime " + (t1 - t0) + " milliseconds.");*/
         }//handleClick
+
+
+
+
     
         render() {
             
