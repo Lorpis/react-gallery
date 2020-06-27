@@ -1,24 +1,24 @@
 {
   "files": {
-    "main.css": "/react-gallery/static/css/main.8d5508bb.chunk.css",
-    "main.js": "/react-gallery/static/js/main.d1e30bc6.chunk.js",
-    "main.js.map": "/react-gallery/static/js/main.d1e30bc6.chunk.js.map",
-    "runtime-main.js": "/react-gallery/static/js/runtime-main.759fc235.js",
-    "runtime-main.js.map": "/react-gallery/static/js/runtime-main.759fc235.js.map",
-    "static/js/2.4194b09d.chunk.js": "/react-gallery/static/js/2.4194b09d.chunk.js",
-    "static/js/2.4194b09d.chunk.js.map": "/react-gallery/static/js/2.4194b09d.chunk.js.map",
+    "main.css": "/react-gallery/static/css/main.1d552841.chunk.css",
+    "main.js": "/react-gallery/static/js/main.b7702f4f.chunk.js",
+    "main.js.map": "/react-gallery/static/js/main.b7702f4f.chunk.js.map",
+    "runtime-main.js": "/react-gallery/static/js/runtime-main.99767faa.js",
+    "runtime-main.js.map": "/react-gallery/static/js/runtime-main.99767faa.js.map",
+    "static/js/2.d1492f76.chunk.js": "/react-gallery/static/js/2.d1492f76.chunk.js",
+    "static/js/2.d1492f76.chunk.js.map": "/react-gallery/static/js/2.d1492f76.chunk.js.map",
     "index.html": "/react-gallery/index.html",
-    "precache-manifest.a72295c49d3dc82a030240f9bc71ff60.js": "/react-gallery/precache-manifest.a72295c49d3dc82a030240f9bc71ff60.js",
+    "precache-manifest.a9e96615b8a4cdfae183ad5b765f8b8e.js": "/react-gallery/precache-manifest.a9e96615b8a4cdfae183ad5b765f8b8e.js",
     "service-worker.js": "/react-gallery/service-worker.js",
-    "static/css/main.8d5508bb.chunk.css.map": "/react-gallery/static/css/main.8d5508bb.chunk.css.map",
-    "static/js/2.4194b09d.chunk.js.LICENSE": "/react-gallery/static/js/2.4194b09d.chunk.js.LICENSE",
+    "static/css/main.1d552841.chunk.css.map": "/react-gallery/static/css/main.1d552841.chunk.css.map",
+    "static/js/2.d1492f76.chunk.js.LICENSE.txt": "/react-gallery/static/js/2.d1492f76.chunk.js.LICENSE.txt",
     "static/media/headerStyles.css": "/react-gallery/static/media/code.e0f53715.jpg",
     "static/media/react.png": "/react-gallery/static/media/react.fbf20f51.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.759fc235.js",
-    "static/js/2.4194b09d.chunk.js",
-    "static/css/main.8d5508bb.chunk.css",
-    "static/js/main.d1e30bc6.chunk.js"
+    "static/js/runtime-main.99767faa.js",
+    "static/js/2.d1492f76.chunk.js",
+    "static/css/main.1d552841.chunk.css",
+    "static/js/main.b7702f4f.chunk.js"
   ]
 }

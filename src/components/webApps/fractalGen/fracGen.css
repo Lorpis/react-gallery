@@ -1,6 +1,7 @@
 .viewPort{
 overflow-x: hidden;
 overflow-y: hidden;
+
 border: solid black 5px;
 position:relative;
 }

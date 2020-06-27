@@ -2,10 +2,9 @@ import React from 'react';
 import  './tabStyles.css';
 import ConCalc from '../../exercises/IsBoiling.js';
 import Home from '../home/Home.js';
-import Grid from '../CECAssist/Grid';
 import VoltageDrop from '../CECAssist/voltageDropCal/VoltageDropMain.js';
 import DragDrop from '../CECAssist/distribution/dragNDrop.js';
-import FracGen from '../webApps/fractalGen/FracGen.js';
+import FracGen from '../webApps/fractalGen/canvas.js';
 import Asteroids from '../games/asteroids/Asteroids.js';
 
 const ConCalc1= ConCalc;
